@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Lix (lix-gha-installer-action, runs the official lix-project/lix-installer)
-        uses: samueldr/lix-gha-installer-action@v2026-05-15
+        uses: samueldr/lix-gha-installer-action@v2026-06-15
         with:
           extra_nix_config: |
             experimental-features = nix-command flakes
