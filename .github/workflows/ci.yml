@@ -33,8 +33,13 @@ jobs:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
     steps:
       - uses: actions/checkout@v4
-      - name: Install Lix (official lix-project/lix-installer)
-        run: curl -sSf -L https://install.lix.systems/lix | sh -s -- install linux --no-confirm --init none --extra-conf "experimental-features = nix-command flakes" --extra-conf "substituters = https://cache.lix.systems https://cache.nixos.org" --extra-conf "trusted-public-keys = cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      - name: Install Lix (lix-gha-installer-action, runs the official lix-project/lix-installer)
+        uses: samueldr/lix-gha-installer-action@v2026-05-15
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            substituters = https://cache.lix.systems https://cache.nixos.org
+            trusted-public-keys = cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v7
         with:
