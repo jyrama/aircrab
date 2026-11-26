@@ -37,37 +37,15 @@ jobs:
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v7
         with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('flake.nix', 'flake.lock') }}
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
-      - name: Build with Nix dev shell (root flake.nix) and smoke-test the CLI
-        run: |
-          nix develop -c bash -c '
-            set -e
-            cd nqptp
-            autoreconf -i
-            cd ..
-            mkdir -p build-ci/nqptp && cd build-ci/nqptp
-            ../../nqptp/configure --without-systemd-startup
-            make -j2
-            ./nqptp -V
-            cd ../..
-            cd shairport-sync
-            autoreconf -i
-            cd ..
-            mkdir -p build-ci/shairport-sync && cd build-ci/shairport-sync
-            ../../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --with-hammerton --without-ffmpeg --without-systemd-startup --without-systemv-startup
-            make -j2
-            ./shairport-sync -V
-            ./shairport-sync -h | head -3
-            if ./shairport-sync --bogus-option 2>/dev/null; then
-              echo "bogus option was accepted" >&2; exit 1
-            fi
-          '
+      - name: Build with nix-shell (root shell.nix) and smoke-test the CLI
+        run: nix-shell --run ./ci/build-and-smoke.sh
       - name: Golden CLI tests via goldplate (when goldplate.d is populated)
         run: |
           if ls shairport-sync/tests/golden_cli/goldplate.d/*.goldplate >/dev/null 2>&1; then
             cp build-ci/shairport-sync/shairport-sync shairport-sync/tests/golden_cli/goldplate.d/shairport-sync-bin
-            nix develop -c goldplate shairport-sync/tests/golden_cli/goldplate.d
+            nix-shell --run 'goldplate shairport-sync/tests/golden_cli/goldplate.d'
           else
             echo "no goldplate cases yet -- run tests/golden_cli/gen-goldplate.sh and 'goldplate --fix' on the reference machine"
           fi
