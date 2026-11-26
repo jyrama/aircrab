@@ -1,10 +1,11 @@
 {
-  description = "aircrab CI dev shell: build deps for the C trees (autotools + libs)";
+  description = "aircrab — Rust port of shairport-sync + nqptp (AirPlay 1/2 server, PTP timing)";
 
+  # pinned by rev (lon-style) — nixos-25.05 @ ac62194c
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/ac62194c3917d5f474c1a844b6fd6da2db95077d";
 
   outputs =
-    { nixpkgs, ... }:
+    { self, nixpkgs }:
     let
       systems = [
         "x86_64-linux"

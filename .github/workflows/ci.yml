@@ -37,11 +37,11 @@ jobs:
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v7
         with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('nix/**') }}
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('flake.nix', 'flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
       - name: Build with Nix dev shell (nix/flake.nix) and smoke-test the CLI
         run: |
-          nix develop ./nix -c bash -c '
+          nix develop -c bash -c '
             set -e
             cd nqptp
             autoreconf -i
@@ -67,7 +67,7 @@ jobs:
         run: |
           if ls shairport-sync/tests/golden_cli/goldplate.d/*.goldplate >/dev/null 2>&1; then
             cp build-ci/shairport-sync/shairport-sync shairport-sync/tests/golden_cli/goldplate.d/shairport-sync-bin
-            nix develop ./nix -c goldplate shairport-sync/tests/golden_cli/goldplate.d
+            nix develop -c goldplate shairport-sync/tests/golden_cli/goldplate.d
           else
             echo "no goldplate cases yet -- run tests/golden_cli/gen-goldplate.sh and 'goldplate --fix' on the reference machine"
           fi
