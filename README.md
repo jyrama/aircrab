@@ -90,8 +90,9 @@ nix-shell --run 'goldplate -j4 goldplate.d'       # check (CI runs this automati
 # (configs/live.conf), so they can run while the real daemon is up; they are expected to
 # hit the timeout (exit 124).
 
-# ABI consistency
+# ABI consistency (byte-identical header copies + compile-time layout lock, SMI v11)
 ./abi/check-sync.sh
+cc -I abi -fsyntax-only abi/check-layout.c
 ```
 
 ## CI
@@ -107,4 +108,6 @@ push to `main`/`vibe/**` and every PR, on `ubuntu-24.04` and `ubuntu-24.04-arm`:
   `shell.nix` pins nixpkgs to a fixed rev via `fetchTarball` (no channels, no `<nixpkgs>`), and
   `nix-community/cache-nix-action@v7` caches `/nix` under `lix-<os>-<arch>-<hash of shell.nix>`.
   The job builds both trees with `nix-shell --run ./ci/build-and-smoke.sh` and smoke-tests the
-  CLI; once goldplate expectations are committed it also runs the goldplate suite.
+  CLI; it also builds a PipeWire-only shairport-sync variant (`build-ci/shairport-sync-pw`,
+  `--with-pipewire --with-avahi --with-ssl=openssl --with-ffmpeg`) since PipeWire is the only
+  backend kept. Once goldplate expectations are committed it also runs the goldplate suite.

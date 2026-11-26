@@ -20,3 +20,10 @@ if ./shairport-sync --bogus-option 2>/dev/null; then
   echo "bogus option was accepted" >&2
   exit 1
 fi
+cd ../..
+# PipeWire-only build: the only audio backend we keep (all other backends default
+# to off; the minimal build above uses --with-stdout --with-dummy for the harness)
+mkdir -p build-ci/shairport-sync-pw && cd build-ci/shairport-sync-pw
+../../shairport-sync/configure --with-pipewire --with-avahi --with-ssl=openssl --with-ffmpeg --without-systemd-startup --without-systemv-startup
+make -j2
+./shairport-sync -V

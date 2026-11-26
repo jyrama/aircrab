@@ -13,6 +13,8 @@ pkgs.mkShell {
     libconfig
     openssl
     ffmpeg
+    pipewire
+    avahi
     gcc
     gnumake
     haskellPackages.goldplate

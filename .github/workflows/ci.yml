@@ -21,6 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
       - name: shm ABI copies in sync
         run: ./abi/check-sync.sh
+      - name: shm ABI layout static asserts
+        run: cc -I abi -fsyntax-only abi/check-layout.c
       - name: nqptp shm/control harness
         run: ./nqptp/harness/run.sh check
 
