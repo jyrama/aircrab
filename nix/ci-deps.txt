@@ -1,6 +1,7 @@
 autoconf
 automake
 libtool
+m4
 pkg-config
 popt
 libconfig
