@@ -49,10 +49,10 @@ cd nqptp && autoreconf -i && cd ..
 mkdir -p build-ci/nqptp && cd build-ci/nqptp
 ../../nqptp/configure --without-systemd-startup && make
 
-# shairport-sync -- minimal set that builds without ffmpeg/avahi/pipewire (CI, harness):
+# shairport-sync -- minimal set that builds without avahi/pipewire (CI, harness; ffmpeg decoder):
 cd shairport-sync && autoreconf -i && cd ..
 mkdir -p build-ci/shairport-sync && cd build-ci/shairport-sync
-../../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --with-hammerton --without-ffmpeg --without-systemd-startup --without-systemv-startup && make
+../../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --with-ffmpeg --without-systemd-startup --without-systemv-startup && make
 
 # shairport-sync -- real build for the Pi (PipeWire backend, avahi mdns, openssl):
 ../../shairport-sync/configure --with-pipewire --with-avahi --with-ssl=openssl && make

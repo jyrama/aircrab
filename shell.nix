@@ -12,6 +12,7 @@ pkgs.mkShell {
     popt
     libconfig
     openssl
+    ffmpeg
     gcc
     gnumake
     haskellPackages.goldplate

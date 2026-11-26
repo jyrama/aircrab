@@ -9,7 +9,7 @@ set -eu
 here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 root=$(CDPATH= cd -- "$here/../.." && pwd)
 mode=${1:-check}
-CONFIGURE_FLAGS=${CONFIGURE_FLAGS:---with-stdout --with-dummy --with-ssl=openssl --without-ffmpeg --without-systemd-startup --without-systemv-startup}
+CONFIGURE_FLAGS=${CONFIGURE_FLAGS:---with-stdout --with-dummy --with-ssl=openssl --with-ffmpeg --without-systemd-startup --without-systemv-startup}
 TIMEOUT=${TIMEOUT:-8}
 build="$here/build"
 case $mode in

@@ -12,7 +12,7 @@ cd shairport-sync
 autoreconf -i
 cd ..
 mkdir -p build-ci/shairport-sync && cd build-ci/shairport-sync
-../../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --with-hammerton --without-ffmpeg --without-systemd-startup --without-systemv-startup
+../../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --with-ffmpeg --without-systemd-startup --without-systemv-startup
 make -j2
 ./shairport-sync -V
 ./shairport-sync -h | head -3
