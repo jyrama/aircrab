@@ -28,10 +28,20 @@ bin_PROGRAMS = shairport-sync
 
 # BUILT_SOURCES get built before anything else (?)
 
-BUILT_SOURCES =
-CLEANFILES =
-shairport_sync_LDADD =
+BUILT_SOURCES = $(RUST_LIB)
+CLEANFILES = $(RUST_LIB)
+shairport_sync_LDADD = $(RUST_LIB) -ldl -lpthread -lm
 noinst_LIBRARIES =
+
+# aircrab Rust CLI parser (clap), built with cargo from the monorepo rust/ workspace
+RUST_WORKSPACE = $(top_srcdir)/../rust
+RUST_LIB = $(RUST_WORKSPACE)/target/release/libaircrab_cli.a
+RUST_SOURCES = $(RUST_WORKSPACE)/Cargo.toml \
+  $(RUST_WORKSPACE)/aircrab-cli/Cargo.toml \
+  $(RUST_WORKSPACE)/aircrab-cli/src/lib.rs
+
+$(RUST_LIB): $(RUST_SOURCES)
+	cd $(RUST_WORKSPACE) && @CARGO@ build --release --package aircrab-cli
 
 # See below for the flags for the test client program
 
@@ -43,7 +53,8 @@ shairport_sync_SOURCES = shairport.c bonjour_strings.c mdns/mdns.c common.c rtp.
   utilities/rtsp_message_utilities.c \
   utilities/string_utilities.c \
   utilities/general_utilities.c \
-  utilities/exit.c
+  utilities/exit.c \
+  aircrab_bridge.c
 
 if USE_REMOTE_CONTROL
 shairport_sync_SOURCES +=   remote/remote.c

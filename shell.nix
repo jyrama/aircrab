@@ -15,6 +15,8 @@ pkgs.mkShell {
     ffmpeg
     gcc
     gnumake
+    cargo
+    rustc
     haskellPackages.goldplate
   ];
 }

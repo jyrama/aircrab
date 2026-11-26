@@ -15,7 +15,9 @@ test harnesses green at every step.
   run without privileged ports.
 - `shairport-sync/` — legacy C tree of shairport-sync, ported piece by piece. Contains
   `tests/golden_cli/` (golden CLI test harness for `parse_options()` and startup).
-- `rust/` — cargo workspace for the ported Rust code (created when the first crate lands).
+- `rust/` — cargo workspace for the ported Rust code. `aircrab-cli` is a clap-based CLI parser
+  built as a staticlib and linked into the shairport-sync build (`shairport-sync/aircrab_bridge.c`,
+  `aircrab_parse_options()` seam in `parse_options()`).
 
 Endgame: the separate nqptp process and its shm/UDP-9000 control channel are dropped in favor of
 an in-process statime-based PTP client inside the Rust shairport-sync.

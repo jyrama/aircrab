@@ -1,0 +1,3 @@
+[workspace]
+members = ["aircrab-cli"]
+resolver = "2"

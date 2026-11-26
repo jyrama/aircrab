@@ -41,6 +41,7 @@ AM_CONDITIONAL([USE_GIT_VERSION], [test -n "$GIT" && test -e "$srcdir/.git/index
 
 # see if we have xmltoman -- not fatal if we don't
 AC_CHECK_PROGS([XMLTOMAN], [xmltoman])
+AC_CHECK_PROG([CARGO], [cargo], [], [AC_MSG_ERROR([cargo is required: the aircrab CLI parser is built from the rust/ workspace])])
 AM_CONDITIONAL([USE_XMLTOMAN], [ test -n "$XMLTOMAN" ])
 
 PKG_PROG_PKG_CONFIG([0.9.0])
