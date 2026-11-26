@@ -79,9 +79,12 @@ CONFIGURE_FLAGS='--with-pipewire --with-avahi --with-ssl=openssl' ./harness.sh c
 cd shairport-sync/tests/golden_cli
 ./gen-goldplate.sh                                # writes goldplate.d/<case>.goldplate (committed)
 cp /path/to/built/shairport-sync goldplate.d/shairport-sync-bin
-goldplate --fix goldplate.d                       # capture expectations ONCE on the reference machine
-# commit the generated goldplate.d/*.stdout and *.stderr, then:
-goldplate -j4 goldplate.d                         # check (CI runs this automatically)
+nix-shell --run 'goldplate --fix goldplate.d'    # capture expectations ONCE on the reference machine
+# the captured goldplate.d/*.stdout and *.stderr land next to the cases; commit them
+# with a plain 'git add' (only the test binary is gitignored), then:
+nix-shell --run 'goldplate -j4 goldplate.d'       # check (CI runs this automatically)
+# live cases use high RTSP ports, a high UDP base (configs/live.conf) and a /tmp pid dir,
+# so they can run while the real daemon is up; they are expected to hit the timeout (124).
 
 # ABI consistency
 ./abi/check-sync.sh
