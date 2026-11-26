@@ -104,7 +104,8 @@ push to `main`/`vibe/**` and every PR, on `ubuntu-24.04` and `ubuntu-24.04-arm`:
   `samueldr/lix-gha-installer-action@v2026-06-15`, the action listed in the Lix wiki, which runs
   the official `lix-project/lix-installer` in its default multi-user mode. `extra_nix_config` adds
   `cache.lix.systems` as a substituter so packages are fetched prebuilt instead of compiled.
-  `shell.nix` pins nixpkgs to a fixed rev via `fetchTarball` (no channels, no `<nixpkgs>`), and
-  `nix-community/cache-nix-action@v7` caches `/nix` under `lix-<os>-<arch>-<hash of shell.nix>`.
+  `shell.nix` takes nixpkgs from the lon pin (`lon.nix`/`lon.lock`, SRI-hashed; updated by the lon
+  bot in `.github/workflows/lon-update.yml`; override locally with `LON_OVERRIDE_nixpkgs`), and
+  `nix-community/cache-nix-action@v7` caches `/nix` under `lix-<os>-<arch>-<hash of shell.nix+lon files>`.
   The job builds both trees with `nix-shell --run ./ci/build-and-smoke.sh` and smoke-tests the
   CLI; once goldplate expectations are committed it also runs the goldplate suite.
