@@ -1,0 +1,9 @@
+autoconf
+automake
+libtool
+pkg-config
+popt
+libconfig
+openssl
+gcc
+gnumake

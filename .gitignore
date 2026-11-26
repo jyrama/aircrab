@@ -1,3 +1,4 @@
 nqptp/harness/build/
 shairport-sync/tests/golden_cli/build/
+/build-ci/
 target/

@@ -1,0 +1,66 @@
+name: ci
+
+on:
+  push:
+    branches: [main, 'vibe/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    name: abi + nqptp harness (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: shm ABI copies in sync
+        run: ./abi/check-sync.sh
+      - name: nqptp shm/control harness
+        run: ./nqptp/harness/run.sh check
+
+  shairport-build:
+    name: shairport-sync build + CLI smoke (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: nixbuild/nix-quick-install-action@v30
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('nix/**') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
+      - name: Build shairport-sync with Nix-provided deps and smoke-test the CLI
+        run: |
+          mapfile -t deps < nix/ci-deps.txt
+          nix shell "${deps[@]/#/nixpkgs#}" -c bash -c '
+            set -e
+            cd shairport-sync
+            autoreconf -i
+            cd ..
+            mkdir -p build-ci && cd build-ci
+            ../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --without-ffmpeg --without-systemd-startup --without-systemv-startup
+            make -j2
+            ./shairport-sync -V
+            ./shairport-sync -h | head -3
+            if ./shairport-sync --bogus-option 2>/dev/null; then
+              echo "bogus option was accepted" >&2; exit 1
+            fi
+          '
+      - name: Golden CLI check (when goldens are committed)
+        run: |
+          if [ -d shairport-sync/tests/golden_cli/golden ]; then
+            cd shairport-sync/tests/golden_cli
+            BIN="$GITHUB_WORKSPACE/build-ci/shairport-sync" TIMEOUT=8 ./harness.sh check
+          else
+            echo "no golden dir yet -- skipping (capture on the reference machine)"
+          fi
