@@ -43,8 +43,8 @@ jobs:
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v7
         with:
-          primary-key: lix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix', 'lon.nix', 'lon.lock') }}
-          restore-prefixes-first-match: lix-${{ runner.os }}-${{ runner.arch }}-
+          primary-key: lix-lon-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix', 'lon.nix', 'lon.lock') }}
+          restore-prefixes-first-match: lix-lon-${{ runner.os }}-${{ runner.arch }}-
       - name: Build with nix-shell (root shell.nix) and smoke-test the CLI
         run: nix-shell --run ./ci/build-and-smoke.sh
       - name: Golden CLI tests via goldplate (once expectations are captured on the reference machine)
