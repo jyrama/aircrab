@@ -39,7 +39,7 @@ jobs:
         with:
           primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('flake.nix', 'flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
-      - name: Build with Nix dev shell (nix/flake.nix) and smoke-test the CLI
+      - name: Build with Nix dev shell (root flake.nix) and smoke-test the CLI
         run: |
           nix develop -c bash -c '
             set -e
