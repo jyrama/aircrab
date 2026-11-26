@@ -1,7 +1,12 @@
 # Golden CLI matrix. Format: name|args (args are eval'd; quote args with spaces).
 # Cases that do not exit on their own run under timeout $TIMEOUT and must
 # exit with 124. Never use -k/--kill here: on a live machine it would kill
-# the real daemon. Live cases use high ports and a /tmp pid dir (live.conf).
+# the real daemon. Live cases use high RTSP ports, a high UDP base, a distinct
+# mDNS name and a /tmp pid dir (live.conf) so they coexist with the real daemon.
+# harness.sh capture|check runs this matrix directly; gen-goldplate.sh turns
+# it into goldplate cases (goldplate.d/) for CI: place the binary at
+# goldplate.d/shairport-sync-bin, then 'goldplate --fix goldplate.d' on the
+# reference machine to capture, 'goldplate goldplate.d' to check.
 help|-h
 help_long|--help
 version|-V

@@ -1,0 +1,48 @@
+{
+    "working_directory": "..",
+    "command": "timeout",
+    "arguments": [
+        "8",
+        "./goldplate.d/shairport-sync-bin",
+        "-X",
+        "-p",
+        "55002",
+        "-a",
+        "Harness",
+        "-o",
+        "dummy",
+        "-c",
+        "configs/live.conf"
+    ],
+    "asserts": [
+        {
+            "exit_code": 124
+        },
+        {
+            "stdout": "goldplate.d/displayconfig_opts.stdout",
+            "post_process": [
+                {
+                    "pattern": "^[ \\t]*[0-9]+\\.[0-9]+[ \\t]+",
+                    "replacement": ""
+                },
+                {
+                    "pattern": "\\[[ \\t]*[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]+\\]",
+                    "replacement": ""
+                }
+            ]
+        },
+        {
+            "stderr": "goldplate.d/displayconfig_opts.stderr",
+            "post_process": [
+                {
+                    "pattern": "^[ \\t]*[0-9]+\\.[0-9]+[ \\t]+",
+                    "replacement": ""
+                },
+                {
+                    "pattern": "\\[[ \\t]*[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]+\\]",
+                    "replacement": ""
+                }
+            ]
+        }
+    ]
+}

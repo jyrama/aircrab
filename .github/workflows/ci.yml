@@ -1,0 +1,58 @@
+name: ci
+
+on:
+  push:
+    branches: [main, 'vibe/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  harness:
+    name: abi + nqptp harness (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: shm ABI copies in sync
+        run: ./abi/check-sync.sh
+      - name: nqptp shm/control harness
+        run: ./nqptp/harness/run.sh check
+
+  shairport-build:
+    name: shairport-sync build + CLI smoke (${{ matrix.runner }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lix (lix-gha-installer-action, runs the official lix-project/lix-installer)
+        uses: samueldr/lix-gha-installer-action@v2026-06-15
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            substituters = https://cache.lix.systems https://cache.nixos.org
+            trusted-public-keys = cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: lix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix') }}
+          restore-prefixes-first-match: lix-${{ runner.os }}-${{ runner.arch }}-
+      - name: Build with nix-shell (root shell.nix) and smoke-test the CLI
+        run: nix-shell --run ./ci/build-and-smoke.sh
+      - name: Golden CLI tests via goldplate (once expectations are captured on the reference machine)
+        run: |
+          d=shairport-sync/tests/golden_cli/goldplate.d
+          if ls "$d"/*.stdout >/dev/null 2>&1; then
+            cp build-ci/shairport-sync/shairport-sync "$d/shairport-sync-bin"
+            nix-shell --run "goldplate -j4 --pretty-diff $d"
+          else
+            echo "no goldplate expectations yet -- capture on the reference machine with the default minimal CONFIGURE_FLAGS (see README), cp the binary to $d/shairport-sync-bin, run 'goldplate --fix $d', commit the generated *.stdout/*.stderr"
+          fi
