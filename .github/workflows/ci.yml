@@ -33,12 +33,18 @@ jobs:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
     steps:
       - uses: actions/checkout@v4
-      - uses: nixbuild/nix-quick-install-action@v30
+      - uses: canidae-solutions/lix-quick-install-action@v5
+        with:
+          lix_version: "2.95.2"
+          lix_conf: |
+            experimental-features = nix-command flakes
+            substituters = https://cache.lix.systems https://cache.nixos.org
+            trusted-public-keys = cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
       - name: Restore and save Nix store
         uses: nix-community/cache-nix-action@v7
         with:
-          primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix') }}
-          restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
+          primary-key: lix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix') }}
+          restore-prefixes-first-match: lix-${{ runner.os }}-${{ runner.arch }}-
       - name: Build with nix-shell (root shell.nix) and smoke-test the CLI
         run: nix-shell --run ./ci/build-and-smoke.sh
       - name: Golden CLI tests via goldplate (when goldplate.d is populated)
