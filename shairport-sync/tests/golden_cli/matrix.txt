@@ -1,0 +1,16 @@
+# Golden CLI matrix. Format: name|args (args are eval'd; quote args with spaces).
+# Cases that do not exit on their own run under timeout $TIMEOUT and must
+# exit with 124. Never use -k/--kill here: on a live machine it would kill
+# the real daemon. Live cases use high ports and a /tmp pid dir (live.conf).
+help|-h
+help_long|--help
+version|-V
+version_long|--version
+displayconfig|-X
+displayconfig_opts|-X -p 55002 -a Harness -o dummy -c configs/live.conf
+bad_long|--no-such-option
+bad_short|-Z
+missing_arg|--port
+config_broken|-c configs/broken.conf
+live_basic|-c configs/live.conf -p 55000 -o dummy
+live_opts|-c configs/live.conf -p 55001 -a "Golden Test" -o dummy -v
