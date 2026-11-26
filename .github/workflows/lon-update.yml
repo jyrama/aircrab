@@ -6,6 +6,8 @@ name: lon-update
 # main, trigger manually with workflow_dispatch.
 on:
   workflow_dispatch:
+  push:
+    branches: [vibe/lon-pin-98c226]
   schedule:
     - cron: "0 6 * * 1"
 
