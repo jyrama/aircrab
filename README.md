@@ -22,6 +22,47 @@ an in-process statime-based PTP client inside the Rust shairport-sync.
 
 Targets: x86-64 and aarch64 GNU/Linux. PipeWire is the only audio backend kept.
 
+## Building
+
+Everything builds with the deps from the root `shell.nix`. With Nix/Lix installed, enter the
+dev shell from the repo root:
+
+```
+nix-shell          # provides autoconf/automake/libtool/pkg-config/popt/libconfig/openssl/gcc/make + goldplate
+```
+
+On a non-Nix system, install the equivalents instead, e.g. Debian/Ubuntu:
+`apt install build-essential autoconf automake libtool pkg-config libpopt-dev libconfig-dev libssl-dev`.
+
+One-shot build of both trees + CLI smoke test (same as CI, output in gitignored `build-ci/`):
+
+```
+nix-shell --run ./ci/build-and-smoke.sh
+# binaries: build-ci/nqptp/nqptp  and  build-ci/shairport-sync/shairport-sync
+```
+
+Or build each tree manually (out-of-tree, same as above):
+
+```
+# nqptp
+cd nqptp && autoreconf -i && cd ..
+mkdir -p build-ci/nqptp && cd build-ci/nqptp
+../../nqptp/configure --without-systemd-startup && make
+
+# shairport-sync -- minimal set that builds without ffmpeg/avahi/pipewire (CI, harness):
+cd shairport-sync && autoreconf -i && cd ..
+mkdir -p build-ci/shairport-sync && cd build-ci/shairport-sync
+../../shairport-sync/configure --with-stdout --with-dummy --with-ssl=openssl --with-external-mdns --with-hammerton --without-ffmpeg --without-systemd-startup --without-systemv-startup && make
+
+# shairport-sync -- real build for the Pi (PipeWire backend, avahi mdns, openssl):
+../../shairport-sync/configure --with-pipewire --with-avahi --with-ssl=openssl && make
+```
+
+The golden-CLI harness builds shairport-sync into `shairport-sync/tests/golden_cli/build/`
+itself: `CONFIGURE_FLAGS='...' shairport-sync/tests/golden_cli/harness.sh build` (see below).
+nqptp can also be built without autotools for the harness: `nqptp/harness/build.sh`
+(direct cc, output in `nqptp/harness/build/`).
+
 ## Test harnesses
 
 ```
