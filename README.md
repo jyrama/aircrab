@@ -34,6 +34,29 @@ cd shairport-sync/tests/golden_cli
 CONFIGURE_FLAGS='--with-pipewire --with-avahi --with-ssl=openssl' ./harness.sh capture
 ./harness.sh check
 
+# shairport-sync: goldplate golden tests (same matrix, TAP output, for CI)
+cd shairport-sync/tests/golden_cli
+./gen-goldplate.sh                                # writes goldplate.d/<case>.goldplate (committed)
+cp /path/to/built/shairport-sync goldplate.d/shairport-sync-bin
+goldplate --fix goldplate.d                       # capture expectations ONCE on the reference machine
+# commit the generated goldplate.d/*.stdout and *.stderr, then:
+goldplate -j4 goldplate.d                         # check (CI runs this automatically)
+
 # ABI consistency
 ./abi/check-sync.sh
 ```
+
+## CI
+
+`.github/workflows/ci.yml` (see PR [#1](https://github.com/jyrama/aircrab/pull/1)) runs on every
+push to `main`/`vibe/**` and every PR, on `ubuntu-24.04` and `ubuntu-24.04-arm`:
+
+- **harness** — `abi/check-sync.sh` + `nqptp/harness/run.sh check` (no Nix needed).
+- **shairport-build** — installs [Lix](https://lix.systems) with
+  `samueldr/lix-gha-installer-action@v2026-06-15`, the action listed in the Lix wiki, which runs
+  the official `lix-project/lix-installer` in its default multi-user mode. `extra_nix_config` adds
+  `cache.lix.systems` as a substituter so packages are fetched prebuilt instead of compiled.
+  `shell.nix` pins nixpkgs to a fixed rev via `fetchTarball` (no channels, no `<nixpkgs>`), and
+  `nix-community/cache-nix-action@v7` caches `/nix` under `lix-<os>-<arch>-<hash of shell.nix>`.
+  The job builds both trees with `nix-shell --run ./ci/build-and-smoke.sh` and smoke-tests the
+  CLI; once goldplate expectations are committed it also runs the goldplate suite.
