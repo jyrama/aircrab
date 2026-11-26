@@ -47,15 +47,12 @@ jobs:
           restore-prefixes-first-match: lix-${{ runner.os }}-${{ runner.arch }}-
       - name: Build with nix-shell (root shell.nix) and smoke-test the CLI
         run: nix-shell --run ./ci/build-and-smoke.sh
-      - name: Golden CLI tests via goldplate (once expectations are captured)
+      - name: Golden CLI tests via goldplate (once expectations are captured on the reference machine)
         run: |
           d=shairport-sync/tests/golden_cli/goldplate.d
-          nix-shell --run 'goldplate --version'
-          cp build-ci/shairport-sync/shairport-sync "$d/shairport-sync-bin"
-          nix-shell --run "goldplate -v --fix $d" || echo "FIX-RUN-EXITED-$?"
-          ls -la "$d"
           if ls "$d"/*.stdout >/dev/null 2>&1; then
+            cp build-ci/shairport-sync/shairport-sync "$d/shairport-sync-bin"
             nix-shell --run "goldplate -j4 --pretty-diff $d"
           else
-            echo "no goldplate expectations yet -- on the reference machine: shairport-sync/tests/golden_cli/gen-goldplate.sh, cp the built binary to $d/shairport-sync-bin, 'goldplate --fix $d', commit the generated *.stdout/*.stderr"
+            echo "no goldplate expectations yet -- capture on the reference machine with the default minimal CONFIGURE_FLAGS (see README), cp the binary to $d/shairport-sync-bin, run 'goldplate --fix $d', commit the generated *.stdout/*.stderr"
           fi

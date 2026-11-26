@@ -70,21 +70,25 @@ nqptp can also be built without autotools for the harness: `nqptp/harness/build.
 ./nqptp/harness/run.sh capture     # first time only
 ./nqptp/harness/run.sh check       # after every change
 
-# shairport-sync: capture golden CLI matrix on the reference machine, then check
+# shairport-sync: capture golden CLI matrix on the reference machine, then check.
+# Use the DEFAULT minimal CONFIGURE_FLAGS (see harness.sh) so the CLI output is
+# identical to the CI-built binary (version string and backend list are build flags).
 cd shairport-sync/tests/golden_cli
-CONFIGURE_FLAGS='--with-pipewire --with-avahi --with-ssl=openssl' ./harness.sh capture
+./harness.sh build                                # builds with the minimal default flags
+./harness.sh capture
 ./harness.sh check
 
 # shairport-sync: goldplate golden tests (same matrix, TAP output, for CI)
 cd shairport-sync/tests/golden_cli
 ./gen-goldplate.sh                                # writes goldplate.d/<case>.goldplate (committed)
-cp /path/to/built/shairport-sync goldplate.d/shairport-sync-bin
+cp build/shairport-sync goldplate.d/shairport-sync-bin   # the minimal-flags build, as above
 nix-shell --run 'goldplate --fix goldplate.d'    # capture expectations ONCE on the reference machine
 # the captured goldplate.d/*.stdout and *.stderr land next to the cases; commit them
 # with a plain 'git add' (only the test binary is gitignored), then:
 nix-shell --run 'goldplate -j4 goldplate.d'       # check (CI runs this automatically)
-# live cases use high RTSP ports, a high UDP base (configs/live.conf) and a /tmp pid dir,
-# so they can run while the real daemon is up; they are expected to hit the timeout (124).
+# live cases use high RTSP ports, a high UDP base, a distinct mDNS name and a /tmp pid dir
+# (configs/live.conf), so they can run while the real daemon is up; they are expected to
+# hit the timeout (exit 124).
 
 # ABI consistency
 ./abi/check-sync.sh
