@@ -1,0 +1,44 @@
+name: lon-update
+
+# Bot workflow from the nikstur/lon README (lon bot github), plus a one-shot
+# init step that creates the initial lon.nix/lon.lock pins on first run.
+# Note: schedule triggers only fire on the default branch; until this lands on
+# main, trigger manually with workflow_dispatch.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lix
+        uses: samueldr/lix-gha-installer-action@v2026-06-15
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            substituters = https://cache.lix.systems https://cache.nixos.org
+            trusted-public-keys = cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+      - name: Create initial lon pins if missing
+        if: ${{ hashFiles('lon.nix') == '' }}
+        run: |
+          nix shell nixpkgs#lon -c sh -c 'lon init && lon add github NixOS/nixpkgs nixos-25.05'
+          git config user.name "lon-bot"
+          git config user.email "lon-bot@users.noreply.github.com"
+          git add lon.nix lon.lock
+          git commit -m "lon: initial pin of nixpkgs (nixos-25.05)" && git push
+      - name: Run the lon update bot (opens PRs for available updates)
+        if: ${{ hashFiles('lon.nix') != '' }}
+        env:
+          LON_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LON_LABELS: "lon,bot"
+          LON_USER_NAME: "lon-bot"
+          LON_USER_EMAIL: "lon-bot@users.noreply.github.com"
+        run: nix shell nixpkgs#lon -c lon bot github
