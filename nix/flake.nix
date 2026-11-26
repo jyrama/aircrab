@@ -26,6 +26,7 @@
             openssl
             gcc
             gnumake
+            haskellPackages.goldplate
           ];
         };
       });
