@@ -39,10 +39,9 @@ jobs:
         with:
           primary-key: nix-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('nix/**') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-${{ runner.arch }}-
-      - name: Build shairport-sync with Nix-provided deps and smoke-test the CLI
+      - name: Build with Nix dev shell (nix/flake.nix) and smoke-test the CLI
         run: |
-          mapfile -t deps < nix/ci-deps.txt
-          nix shell "${deps[@]/#/nixpkgs#}" -c bash -c '
+          nix develop ./nix -c bash -c '
             set -e
             cd nqptp
             autoreconf -i
