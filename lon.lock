@@ -6,10 +6,10 @@
       "fetchType": "tarball",
       "owner": "NixOS",
       "repo": "nixpkgs",
-      "branch": "nixos-25.05",
-      "revision": "ac62194c3917d5f474c1a844b6fd6da2db95077d",
-      "url": "https://github.com/NixOS/nixpkgs/archive/ac62194c3917d5f474c1a844b6fd6da2db95077d.tar.gz",
-      "hash": "sha256-16KkgfdYqjaeRGBaYsNrhPRRENs0qzkQVUooNHtoy2w="
+      "branch": "nixos-26.05",
+      "revision": "0dc498bfe49baeb18b0f9891e800b53bb2603193",
+      "url": "https://github.com/NixOS/nixpkgs/archive/0dc498bfe49baeb18b0f9891e800b53bb2603193.tar.gz",
+      "hash": "sha256-s/0jq8usZtLVOolYBwmyUmd3JsfAu7w3FU+a0dgMqSY="
     }
   }
 }
