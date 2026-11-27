@@ -36,18 +36,6 @@ jobs:
           git config user.email "lon-bot@users.noreply.github.com"
           git add lon.nix lon.lock
           git commit -m "lon: initial pin of nixpkgs (nixos-25.05)" && git push
-      - name: Retarget nixpkgs pin to nixos-26.05 (one-shot)
-        if: ${{ hashFiles('lon.nix') != '' }}
-        run: |
-          if grep -q '"branch": "nixos-25.05"' lon.lock; then
-            nix shell nixpkgs#lon -c sh -c 'lon remove nixpkgs && lon add github NixOS/nixpkgs nixos-26.05'
-            git config user.name "lon-bot"
-            git config user.email "lon-bot@users.noreply.github.com"
-            git add lon.lock lon.nix
-            git commit -m "lon: retarget nixpkgs pin from nixos-25.05 to nixos-26.05" && git push
-          else
-            echo "nixpkgs pin is not on nixos-25.05 anymore, nothing to do"
-          fi
       - name: Run the lon update bot (opens PRs for available updates)
         if: ${{ hashFiles('lon.nix') != '' }}
         env:

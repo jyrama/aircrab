@@ -40,11 +40,10 @@ jobs:
             experimental-features = nix-command flakes
             substituters = https://cache.lix.systems https://cache.nixos.org
             trusted-public-keys = cache.lix.systems:aBnZUw8zA7H35Cz2RyKFVs3H4PlGTLawyY5KRbvJR8o= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
-      - name: Restore and save Nix store
-        uses: nix-community/cache-nix-action@v7
-        with:
-          primary-key: lix-lon-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('shell.nix', 'lon.nix', 'lon.lock') }}
-          restore-prefixes-first-match: lix-lon-${{ runner.os }}-${{ runner.arch }}-
+      # No /nix store cache: restoring the tar'd store with cache-nix-action
+      # corrupts hardlinked files (/nix/store/.links), leaving the Lix store DB
+      # claiming paths are valid while files are missing. Builds fetch everything
+      # from cache.lix.systems instead (~1-2 min), which is reliable.
       - name: Build with nix-shell (root shell.nix) and smoke-test the CLI
         run: nix-shell --run ./ci/build-and-smoke.sh
       - name: Golden CLI tests via goldplate (once expectations are captured on the reference machine)
